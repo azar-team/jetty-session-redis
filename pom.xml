@@ -4,7 +4,7 @@
 
     <groupId>com.hpcnt</groupId>
     <artifactId>jetty-session-redis</artifactId>
-    <version>3.1</version>
+    <version>3.2</version>
     <packaging>jar</packaging>
 
     <name>jetty-session-redis</name>
@@ -26,7 +26,8 @@
             <groupId>org.eclipse.jetty.aggregate</groupId>
             <artifactId>jetty-all</artifactId>
             <version>9.3.9.v20160517</version>
-            <type>provided</type>
+            <classifier>uber</classifier>
+            <scope>provided</scope>
         </dependency>
 
         <!-- jetty classes + runner + jsp stack -->
