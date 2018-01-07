@@ -30,7 +30,7 @@ import java.util.zip.GZIPOutputStream;
  */
 public abstract class BinarySerializer extends SerializerSkeleton {
 
-    private boolean gzip = true;
+    private boolean gzip = false;
 
     public void setGzip(boolean gzip) {
         this.gzip = gzip;
@@ -61,11 +61,23 @@ public abstract class BinarySerializer extends SerializerSkeleton {
     @Override
     public final <T> T deserialize(String o, Class<T> targetType) throws SerializerException {
         try {
-            ByteArrayInputStream bais = new ByteArrayInputStream(B64Code.decode(o));
-            return targetType.cast(read(gzip ? new GZIPInputStream(bais) : bais));
+            byte[] bytes = B64Code.decode(o);
+            int magic = (toUbyte(bytes[0])) | (toUbyte(bytes[1]) << 8);
+            InputStream inputStream;
+            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+            if (magic == GZIPInputStream.GZIP_MAGIC) {
+                inputStream = new GZIPInputStream(bais);
+            } else {
+                inputStream = bais;
+            }
+            return targetType.cast(read(inputStream));
         } catch (Exception e) {
             throw new SerializerException("Error deserializing " + o + " : " + e.getMessage(), e);
         }
+    }
+
+    private int toUbyte(byte aByte) {
+        return (aByte + 256) & 0xff;
     }
 
     protected abstract void write(OutputStream out, Object o) throws Exception;

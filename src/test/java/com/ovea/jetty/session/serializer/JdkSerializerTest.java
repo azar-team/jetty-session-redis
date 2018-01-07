@@ -15,13 +15,17 @@
  */
 package com.ovea.jetty.session.serializer;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.io.Serializable;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Mathieu Carbou (mathieu.carbou@gmail.com)
@@ -62,5 +66,20 @@ public final class JdkSerializerTest implements Serializable {
         String data = serializer.serialize(obj);
         System.out.println("gzip=" + serializer.isGzip() + " : " + data);
         return (T) serializer.deserialize(data, obj.getClass());
+    }
+
+    @Test
+    public void testGzipDetection() throws Exception {
+        serializer.setGzip(true);
+        String s = serializer.serialize("asdf");
+        String s2 = serializer.deserialize(s, String.class);
+        assertEquals("asdf", s2);
+
+        serializer.setGzip(false);
+        String s3 = serializer.serialize("asdf");
+        String s4 = serializer.deserialize(s3, String.class);
+        assertEquals("asdf", s4);
+
+        assertThat(s, is(not(s3)));
     }
 }
